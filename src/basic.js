@@ -127,6 +127,7 @@ const basicRequest = {
       const urlFinal = url.includes("://") ? url : this.getBaseUrl() + url;
       InstAxios.post(urlFinal, datas, configs)
         .then((reponse) => {
+          console.log(`POST datas :: `, datas);
           if (this.debug)
             console.log(
               "Debug axio : \n",
@@ -149,6 +150,7 @@ const basicRequest = {
           });
         })
         .catch((error) => {
+          console.log(`POST datas :: `, datas);
           console.log("error wbutilities", error.response);
           reject({
             status: false,
@@ -213,6 +215,31 @@ const basicRequest = {
     });
   },
   /**
+   * Post entities with image, boundary.
+   * @param {string} url
+   * @param {Array} entities - tableau d'objets { file, alt, title, description }
+   * @param {Object} configs - configurations Axios
+   */
+  postEntites(url, entities, configs = {}, token_csrf = null) {
+    if (!Array.isArray(entities) || entities.length === 0) {
+      throw new Error("Aucun fichier à envoyer.");
+    }
+    const formData = new FormData();
+    entities.forEach((entity, index) => {
+      Object.keys(entity).forEach((key) => {
+        console.log(`entities[${index}][${key}]`, entity[key]);
+        formData.append(`entities[${index}][${key}]`, entity[key]);
+      });
+      if (token_csrf) formData.append("_token_csrf", token_csrf);
+    });
+    // configs = {
+    //   withCredentials: true,
+    //   ...configs,
+    // };
+    return this.post(url, formData, configs);
+  },
+  /**
+   * Post single file with encode.
    * @param file " fichier à uploaded"
    */
   postFile(url, file, id = null) {
