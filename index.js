@@ -1,2 +1,2 @@
-import basicRequest from "./src/basic.js";
+import basicRequest from "./src/basic";
 export default basicRequest;

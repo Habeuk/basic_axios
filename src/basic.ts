@@ -1,3 +1,5 @@
+import type { basic, BasicRequest, EntityFile } from './basicInterface';
+
 /**
  * Permet d'effectuer les requetes
  * pour modifier ou definir les paramettres par defaut de l'instance, {AjaxBasic}.axiosInstance.defaults.timeout = 30000;
@@ -27,7 +29,7 @@ InstAxios.interceptors.response.use((response) => {
   return response;
 });
 
-var formatBasicAuth = function (userName, password) {
+var formatBasicAuth = function (userName: string, password: string) {
   var basicAuthCredential = userName + ':' + password;
   var bace64 = btoa(basicAuthCredential);
   return 'Basic ' + bace64;
@@ -37,16 +39,14 @@ var formatBasicAuth = function (userName, password) {
  * On mettre en place un systeme d'authentification qui utilise les jetons pour maintenir les communications.
  */
 ////******* */
-var user = JSON.parse(window.localStorage.getItem('user'));
-var current_user;
+var user: basic['user'] = JSON.parse(window.localStorage.getItem('user') ?? '');
+var current_user: basic['user'] = { username: '', password: '' };
 if (window.localStorage.getItem('current_user')) {
-  current_user = JSON.parse(window.localStorage.getItem('current_user'));
-} else {
-  current_user = null;
+  current_user = JSON.parse(window.localStorage.getItem('current_user') ?? '');
 }
 ////******* */
 
-const basicRequest = {
+const basicRequest: BasicRequest = {
   /* Permet de lire la variable user dans le localstorage et de formater l'authorisation */
   auth: user ? formatBasicAuth(user.username, user.password) : null,
   current_user: current_user,
@@ -82,18 +82,18 @@ const basicRequest = {
    * @returns String
    */
   getBaseUrl() {
-    if (this.baseUrl) return this.isLocalDev && this.TestDomain ? this.TestDomain.trim('/') : this.baseUrl;
+    if (this.baseUrl)
+      return this.isLocalDev && this.TestDomain ? this.TestDomain.replace(/^\/+|\/+$/g, '') : this.baseUrl;
     else
       return this.isLocalDev && this.TestDomain
-        ? this.TestDomain.trim('/')
+        ? this.TestDomain.replace(/^\/+|\/+$/g, '')
         : window.location.protocol + '//' + window.location.host;
   },
   /**
-   * Permet de recuperer les messages , en priorité celui definie dans headers.customstatustext.
+   * Récupère les messages, en priorité celui défini dans headers.customstatustext
    *
-   * @param {*} er
-   * @param {*} type ( true pour recuperer les messages en cas de success )
-   * @returns
+   * @param er - La réponse ou l'erreur
+   * @param type - true pour les messages de succès, false pour les erreurs
    */
   getStatusText(er, type = false) {
     if (er) {
@@ -167,11 +167,11 @@ const basicRequest = {
         });
     });
   },
-  delete(url, datas, configs) {
+  delete(url, configs) {
     return new Promise((resolv, reject) => {
       const urlFinal = url.includes('://') ? url : this.getBaseUrl() + url;
 
-      InstAxios.delete(urlFinal, configs, datas)
+      InstAxios.delete(urlFinal, configs)
         .then((reponse) => {
           resolv({
             status: true,
@@ -232,26 +232,25 @@ const basicRequest = {
   },
   /**
    * Post entities with image, boundary.
-   * @param {string} url
-   * @param {Array} entities - tableau d'objets { file, alt, title, description }
-   * @param {Object} configs - configurations Axios
+   * @param <string> url
+   * @param entities - tableau d'objets { file, alt, title, description }
+   * @param configs - configurations Axios
    */
-  postEntites(url, entities, configs = {}, token_csrf = null) {
+  postEntites(url, entities: Array<EntityFile>, configs = {}, token_csrf = null) {
     if (!Array.isArray(entities) || entities.length === 0) {
       throw new Error('Aucun fichier à envoyer.');
     }
     const formData = new FormData();
     entities.forEach((entity, index) => {
-      Object.keys(entity).forEach((key) => {
+      (Object.keys(entity) as Array<keyof EntityFile>).forEach((key) => {
         console.log(`entities[${index}][${key}]`, entity[key]);
-        formData.append(`entities[${index}][${key}]`, entity[key]);
+        const value = entity[key];
+        if (value !== undefined && value !== null) {
+          formData.append(`entities[${index}][${key}]`, value as string | Blob);
+        }
       });
       if (token_csrf) formData.append('_token_csrf', token_csrf);
     });
-    // configs = {
-    //   withCredentials: true,
-    //   ...configs,
-    // };
     return this.post(url, formData, configs);
   },
   /**
@@ -263,7 +262,7 @@ const basicRequest = {
       this.getBase64(file).then((fileEncode) => {
         var headers = new Headers();
         var fileCompose = file.name.split('.');
-        var myInit = {
+        var myInit: RequestInit = {
           method: 'POST',
           headers: headers,
           // mode: "cors",
@@ -295,8 +294,13 @@ const basicRequest = {
       reader.readAsDataURL(file);
       //reader.onload = () => resolve(reader.result);
       reader.onloadend = () => {
-        var fileArray = reader.result.split(',');
-        resolve({ src: reader.result, base64: fileArray[1] });
+        var fileArray = typeof reader.result === 'string' ? reader.result.split(',') : null;
+        if (fileArray)
+          resolve({
+            src: typeof reader.result === 'string' ? reader.result : '',
+            base64: fileArray[1] ?? '',
+          });
+        else reject(new Error('Failed to read file'));
       };
       reader.onerror = (error) => reject(error);
     });
