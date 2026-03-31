@@ -54,11 +54,14 @@ const basicRequest: BasicRequest = {
   /**
    * Domaine permettant d'effectuer les tests en local.
    * C'est sur ce domaine que les requetes vont etre transmise quand on est en local.
+   * exemple : http://facturation-photographe.kksa
    * @public
    */
   TestDomain: null,
   /**
    * Permet de specifier un domaine pour la production. ( utiliser uniquement quand l'application front est sur un domaine different de l'application serveur ).
+   * exemple : https://facturation-photographe.com
+   * @public
    */
   baseUrl: null,
   /**
