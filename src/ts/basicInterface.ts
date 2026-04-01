@@ -3,6 +3,7 @@ type ApiResponse<T = any> = { status: boolean; data: T; reponse: any; statusText
 type FileEncoded = { src: string; base64: string };
 
 import type { AxiosInstance, AxiosRequestConfig } from 'axios';
+
 export type EntityFile = { file: File; alt?: string; title?: string; description?: string };
 export interface basic {
   user: {
@@ -11,13 +12,7 @@ export interface basic {
   };
 }
 
-export interface BasicRequest {
-  /** Authentification Basic (username:password encodé en base64) */
-  auth: string | null;
-
-  /** Utilisateur courant */
-  current_user: any;
-
+export interface BasicRequestInterface {
   /** Instance Axios */
   axiosInstance: AxiosInstance;
 
@@ -90,27 +85,3 @@ export interface BasicRequest {
    */
   getBase64(file: File): Promise<FileEncoded>;
 }
-
-// export interface BasicRequest {
-//   auth: string | null
-//   current_user: any
-//   axiosInstance: AxiosInstance
-//   TestDomain: string | null
-//   baseUrl: string | null
-//   languageId: string | null
-//   debug: boolean
-//   isLocalDev: boolean
-//   getBaseUrl(): string
-//   getStatusText(er: any, type?: boolean): string | null
-//   post<T = any>(url: string, datas?: any, configs?: AxiosRequestConfig): Promise<ApiResponse<T>>
-//   delete<T = any>(url: string, datas?: any, configs?: AxiosRequestConfig): Promise<ApiResponse<T>>
-//   get<T = any>(url: string, configs?: AxiosRequestConfig): Promise<ApiResponse<T>>
-//   postEntites(
-//     url: string,
-//     entities: EntityFile[],
-//     configs?: AxiosRequestConfig,
-//     token_csrf?: string | null,
-//   ): Promise<any>
-//   postFile(url: string, file: File, id?: string | number | null): Promise<any>
-//   getBase64(file: File): Promise<FileEncoded>
-// }

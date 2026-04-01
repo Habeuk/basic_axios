@@ -1,18 +1,27 @@
-import type { basic, BasicRequest, EntityFile } from './basicInterface';
+import type { BasicRequestInterface, EntityFile } from './basicInterface';
 
 /**
  * Permet d'effectuer les requetes
  * pour modifier ou definir les paramettres par defaut de l'instance, {AjaxBasic}.axiosInstance.defaults.timeout = 30000;
  */
 import axios from 'axios';
+
 const InstAxios = axios.create({
   timeout: 300000,
 });
+// definiton du token
+let currentToken: string | null = null;
+export const setAuthToken = (token: string | null) => {
+  currentToken = token;
+};
 // Surcharge des données d'envoit
 InstAxios.interceptors.request.use((config) => {
-  //Recuperation du temps de debut.
+  // Recuperation du temps de debut.
   config.headers['request-startTime'] = new Date().getTime();
-  //
+  // Ajout du token d'authentification
+  if (currentToken) {
+    config.headers['Authorization'] = `Bearer ${currentToken}`;
+  }
   return config;
 });
 //surcharge de la reponse
@@ -29,27 +38,9 @@ InstAxios.interceptors.response.use((response) => {
   return response;
 });
 
-var formatBasicAuth = function (userName: string, password: string) {
-  var basicAuthCredential = userName + ':' + password;
-  var bace64 = btoa(basicAuthCredential);
-  return 'Basic ' + bace64;
-};
-/**
- * Cette approche doit etre mise en place dans un enviroment securée et n'est pas recommander, car une tiere personne peut recuperer les données.
- * On mettre en place un systeme d'authentification qui utilise les jetons pour maintenir les communications.
- */
-////******* */
-var user: basic['user'] = JSON.parse(window.localStorage.getItem('user') ?? '');
-var current_user: basic['user'] = { username: '', password: '' };
-if (window.localStorage.getItem('current_user')) {
-  current_user = JSON.parse(window.localStorage.getItem('current_user') ?? '');
-}
 ////******* */
 
-const basicRequest: BasicRequest = {
-  /* Permet de lire la variable user dans le localstorage et de formater l'authorisation */
-  auth: user ? formatBasicAuth(user.username, user.password) : null,
-  current_user: current_user,
+const basicRequestToken: BasicRequestInterface = {
   axiosInstance: InstAxios,
   /**
    * Domaine permettant d'effectuer les tests en local.
@@ -310,4 +301,4 @@ const basicRequest: BasicRequest = {
   },
 };
 
-export default basicRequest;
+export default basicRequestToken;

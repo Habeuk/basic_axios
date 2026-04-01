@@ -6,11 +6,18 @@ import axios from 'axios';
 const InstAxios = axios.create({
   timeout: 300000,
 });
+let currentToken = null;
+export const setAuthToken = (token) => {
+  currentToken = token;
+};
 // Surcharge des données d'envoit
 InstAxios.interceptors.request.use((config) => {
   //Recuperation du temps de debut.
   config.headers['request-startTime'] = new Date().getTime();
-  //
+  //// Ajout du token d'authentification
+  if (currentToken) {
+    config.headers['Authorization'] = `Bearer ${currentToken}`;
+  }
   return config;
 });
 //surcharge de la reponse

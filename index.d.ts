@@ -1,5 +1,6 @@
-// on exporter toutes les interfaces de basic_axios.
-export * from './src/basicInterface';
-// on déclare une constante pour le type BasicRequest et on l'exporte.
-declare const basicRequest: import('./src/basicInterface').BasicRequest;
-export default basicRequest;
+// index.d.ts
+// On exporte toutes les interfaces de basic_axios.
+
+export * from './src/ts/basicInterface';
+declare const BasicRequestInterface: import('./src/ts/basicInterface').BasicRequestInterface;
+export default BasicRequestInterface;
