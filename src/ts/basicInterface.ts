@@ -1,4 +1,4 @@
-type ApiResponse<T = any> = { status: boolean; data: T; reponse: any; statusText: string | null };
+export type ApiResponse<T = any> = { status: boolean; data: T; reponse: any; statusText: string | null };
 
 type FileEncoded = { src: string; base64: string };
 
@@ -78,7 +78,24 @@ export interface BasicRequestInterface {
    * @param file - Fichier à uploader
    * @param id - Identifiant optionnel
    */
-  postFile(url: string, file: File, id?: string | number | null): Promise<any>;
+  postFileBase64(url: string, file: File, id?: string | number | null): Promise<any>;
+
+  /**
+   * Envoi d'un fichier avec multipart/form-data
+   * @param url - URL de destination
+   * @param file - Fichier à uploader
+   * @param id - Identifiant optionnel
+   * @param configs - Configurations Axios
+   */
+  postFile(
+    url: string,
+    file: File,
+    onProgress: (percent: number) => void,
+    id?: string | number | null,
+    alt?: string | null,
+    description?: string | null,
+    configs?: AxiosRequestConfig,
+  ): Promise<any>;
 
   /**
    * Convertit un fichier en base64

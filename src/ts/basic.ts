@@ -107,9 +107,11 @@ const basicRequestToken: BasicRequestInterface = {
         const message =
           er.response && er.response.data && er.response.data.message ? ' || ' + er.response.data.message : null;
         if (er.response && er.response.headers && er.response.headers.customstatustext) {
-          return er.response.headers.customstatustext + message;
+          if (message) return er.response.headers.customstatustext + ' ' + message;
+          else return er.response.headers.customstatustext;
         } else if (er.response && er.response.statusText) {
-          return er.response.statusText + message;
+          if (message) return er.response.statusText + ' ' + message;
+          else return er.response.statusText;
         } else {
           return message;
         }
@@ -124,7 +126,8 @@ const basicRequestToken: BasicRequestInterface = {
         url = '/' + this.languageId + url;
 
       const urlFinal = url.includes('://') ? url : this.getBaseUrl() + url;
-      InstAxios.post(urlFinal, datas, configs)
+      basicRequestToken.axiosInstance
+        .post(urlFinal, datas, configs)
         .then((reponse) => {
           console.log(`POST datas :: `, datas);
           if (this.debug)
@@ -149,14 +152,16 @@ const basicRequestToken: BasicRequestInterface = {
           });
         })
         .catch((error) => {
-          console.log(`POST datas :: `, datas);
-          console.log('error wbutilities', error.response);
+          if (this.debug) {
+            console.log(`POST datas :: `, datas);
+            console.log('error wbutilities', error.response, error);
+          }
           reject({
             status: false,
-            error: error.response,
             code: error.code,
             stack: error.stack,
-            statusText: this.getStatusText(error),
+            statusTextCustom: this.getStatusText(error),
+            ...error.response,
           });
         });
     });
@@ -165,7 +170,8 @@ const basicRequestToken: BasicRequestInterface = {
     return new Promise((resolv, reject) => {
       const urlFinal = url.includes('://') ? url : this.getBaseUrl() + url;
 
-      InstAxios.delete(urlFinal, configs)
+      basicRequestToken.axiosInstance
+        .delete(urlFinal, configs)
         .then((reponse) => {
           resolv({
             status: true,
@@ -191,7 +197,8 @@ const basicRequestToken: BasicRequestInterface = {
         url = '/' + this.languageId + url;
       const urlFinal = url.includes('://') ? url : this.getBaseUrl() + url;
 
-      InstAxios.get(urlFinal, configs)
+      basicRequestToken.axiosInstance
+        .get(urlFinal, configs)
         .then((reponse) => {
           if (this.debug)
             console.log(
@@ -247,11 +254,32 @@ const basicRequestToken: BasicRequestInterface = {
     });
     return this.post(url, formData, configs);
   },
+  postFile(url, file, onProgress, id = null, alt = null, description = null, configs = {}) {
+    if (configs.headers === undefined) {
+      configs.headers = { 'Content-Type': 'multipart/form-data' };
+    } else {
+      configs.headers['Content-Type'] = 'multipart/form-data';
+    }
+    if (configs.onUploadProgress === undefined) {
+      configs.onUploadProgress = (progressEvent) => {
+        if (progressEvent.total) {
+          const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          onProgress(percent);
+        }
+      };
+    }
+    const formData = new FormData();
+    formData.append('upload', file);
+    if (id !== null) formData.append('id', id.toString());
+    if (alt !== null) formData.append('alt', alt.toString());
+    if (description !== null) formData.append('description', description.toString());
+    return this.post(url, formData, configs);
+  },
   /**
    * Post single file with encode.
    * @param file " fichier à uploaded"
    */
-  postFile(url, file, id = null) {
+  postFileBase64(url, file, id = null) {
     return new Promise((resolv, reject) => {
       this.getBase64(file).then((fileEncode) => {
         var headers = new Headers();
@@ -286,7 +314,7 @@ const basicRequestToken: BasicRequestInterface = {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
-      //reader.onload = () => resolve(reader.result);
+      // reader.onload = () => resolve(reader.result);
       reader.onloadend = () => {
         var fileArray = typeof reader.result === 'string' ? reader.result.split(',') : null;
         if (fileArray)
