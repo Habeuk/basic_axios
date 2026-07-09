@@ -129,7 +129,6 @@ const basicRequestToken: BasicRequestInterface = {
       basicRequestToken.axiosInstance
         .post(urlFinal, datas, configs)
         .then((reponse) => {
-          console.log(`POST datas :: `, datas);
           if (this.debug)
             console.log(
               'Debug axio : \n',
