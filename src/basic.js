@@ -139,7 +139,6 @@ const basicRequest = {
       const urlFinal = url.includes('://') ? url : this.getBaseUrl() + url;
       InstAxios.post(urlFinal, datas, configs)
         .then((reponse) => {
-          console.log(`POST datas :: `, datas);
           if (this.debug)
             console.log(
               'Debug axio : \n',
