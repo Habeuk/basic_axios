@@ -249,7 +249,6 @@ const basicRequest = {
     const formData = new FormData();
     entities.forEach((entity, index) => {
       Object.keys(entity).forEach((key) => {
-        console.log(`entities[${index}][${key}]`, entity[key]);
         formData.append(`entities[${index}][${key}]`, entity[key]);
       });
       if (token_csrf) formData.append('_token_csrf', token_csrf);
