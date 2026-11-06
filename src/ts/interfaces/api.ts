@@ -6,7 +6,7 @@ import type { AxiosResponse } from 'axios';
 export interface ApiSuccess<T = unknown> {
   status: true;
   data: T;
-  reponse: AxiosResponse<T>;
+  response: AxiosResponse<T>;
   statusText: string | null;
 }
 

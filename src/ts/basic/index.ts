@@ -29,7 +29,7 @@ const basicRequestToken: BasicRequestInterface = {
       const urlFinal = url.includes('://') ? url : this.getBaseUrl() + url;
 
       InstAxios.post<T>(urlFinal, datas, configs)
-        .then((reponse) => {
+        .then((response) => {
           if (this.debug)
             console.log(
               'Debug axio (POST) : \n',
@@ -39,16 +39,16 @@ const basicRequestToken: BasicRequestInterface = {
               '\n config: ',
               configs,
               '\n Duration : ',
-              reponse.headers['request-duration'],
+              response.headers['request-duration'],
               '\n reponse: ',
-              reponse,
+              response,
               '\n ------ \n',
             );
           resolve({
             status: true,
-            data: reponse.data,
-            reponse,
-            statusText: this.getStatusText(reponse, true),
+            data: response.data,
+            response,
+            statusText: this.getStatusText(response, true),
           });
         })
         .catch((error: AxiosError) => {
@@ -66,12 +66,12 @@ const basicRequestToken: BasicRequestInterface = {
   async postBare<T = unknown>(url: string, datas?: unknown, configs?: AxiosRequestConfig): Promise<ApiSuccess<T>> {
     const urlFinal = url.includes('://') ? url : this.getBaseUrl() + url;
     try {
-      const reponse = await BareAxios.post<T>(urlFinal, datas, configs);
+      const response = await BareAxios.post<T>(urlFinal, datas, configs);
       return {
         status: true,
-        data: reponse.data,
-        reponse,
-        statusText: this.getStatusText(reponse, true),
+        data: response.data,
+        response,
+        statusText: this.getStatusText(response, true),
       };
     } catch (error) {
       const apiError = toApiError(error as AxiosError);
@@ -85,12 +85,12 @@ const basicRequestToken: BasicRequestInterface = {
       const urlFinal = url.includes('://') ? url : this.getBaseUrl() + url;
 
       InstAxios.delete<T>(urlFinal, configs)
-        .then((reponse) => {
+        .then((response) => {
           resolve({
             status: true,
-            data: reponse.data,
-            reponse,
-            statusText: this.getStatusText(reponse, true),
+            data: response.data,
+            response,
+            statusText: this.getStatusText(response, true),
           });
         })
         .catch((error: AxiosError) => {
@@ -108,7 +108,7 @@ const basicRequestToken: BasicRequestInterface = {
       const urlFinal = url.includes('://') ? url : this.getBaseUrl() + url;
 
       InstAxios.get<T>(urlFinal, configs)
-        .then((reponse) => {
+        .then((response) => {
           if (this.debug)
             console.log(
               'Debug axio (GET) : \n',
@@ -116,16 +116,16 @@ const basicRequestToken: BasicRequestInterface = {
               '\n Config: ',
               configs,
               '\n Duration : ',
-              reponse.headers['request-duration'],
+              response.headers['request-duration'],
               '\n Reponse: ',
-              reponse,
+              response,
               '\n ------ \n',
             );
           resolve({
             status: true,
-            data: reponse.data,
-            reponse,
-            statusText: this.getStatusText(reponse, true),
+            data: response.data,
+            response,
+            statusText: this.getStatusText(response, true),
           });
         })
         .catch((error: AxiosError) => {
